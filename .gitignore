@@ -1,0 +1,11 @@
+# Ignore MCP submodule/tooling directory
+MCP-Packet-Tracer/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temporary and log files
+*.log
+*.tmp
