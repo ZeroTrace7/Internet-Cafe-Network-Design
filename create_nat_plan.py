@@ -1,0 +1,94 @@
+import json
+
+plan = {
+  "name": "static_nat_lab",
+  "devices": [
+    {
+      "name": "Gateway",
+      "model": "1941",
+      "category": "router",
+      "x": 400,
+      "y": 200,
+      "interfaces": {
+        "GigabitEthernet0/0": "192.168.10.1/24",
+        "GigabitEthernet0/1": "203.0.113.1/24"
+      }
+    },
+    {
+      "name": "Internal_SW",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 200,
+      "y": 200,
+      "interfaces": {}
+    },
+    {
+      "name": "Web_Server",
+      "model": "Server-PT",
+      "category": "server",
+      "x": 50,
+      "y": 200,
+      "interfaces": {
+        "FastEthernet0": "192.168.10.10/24"
+      },
+      "gateway": "192.168.10.1"
+    },
+    {
+      "name": "External_SW",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 600,
+      "y": 200,
+      "interfaces": {}
+    },
+    {
+      "name": "External_PC",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 750,
+      "y": 200,
+      "interfaces": {
+        "FastEthernet0": "203.0.113.100/24"
+      },
+      "gateway": "203.0.113.1"
+    }
+  ],
+  "modules": [],
+  "links": [
+    {
+      "device_a": "Gateway",
+      "port_a": "GigabitEthernet0/0",
+      "device_b": "Internal_SW",
+      "port_b": "FastEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "Internal_SW",
+      "port_a": "FastEthernet0/2",
+      "device_b": "Web_Server",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "Gateway",
+      "port_a": "GigabitEthernet0/1",
+      "device_b": "External_SW",
+      "port_b": "FastEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "External_SW",
+      "port_a": "FastEthernet0/2",
+      "device_b": "External_PC",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    }
+  ],
+  "dhcp_pools": [],
+  "static_routes": [],
+  "ospf_configs": [],
+  "rip_configs": []
+}
+
+with open("nat_plan.json", "w") as f:
+    json.dump(plan, f, indent=2)

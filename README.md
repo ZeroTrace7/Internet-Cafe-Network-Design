@@ -1,292 +1,317 @@
-# 🛡️ Secure Multi-Branch Enterprise Network with Site-to-Site IPsec VPN & Redundant WAN Failover
-## Computer Networks (CN) B.Tech Project — Major Review (Part 1) & Minor Review (Part 2)
+# 🛡️ Secure Multi-Branch Enterprise Network with Site-to-Site IPsec VPN, VLANs, ACLs & Redundant WAN Failover
+## Computer Networks (CN) B.Tech Final Project & Demonstration
 
 [![Cisco Packet Tracer](https://img.shields.io/badge/Cisco%20Packet%20Tracer-v8.0%2B%20%7C%20v9.0%2B-005073?logo=cisco&logoColor=white)](https://www.netacad.com/courses/packet-tracer)
 [![Security: IPsec VPN](https://img.shields.io/badge/Security-Site--to--Site%20IPsec%20VPN-red)](#-site-to-site-ipsec-vpn-architecture)
-[![Redundancy: Floating Static Routes](https://img.shields.io/badge/Redundancy-Dual--ISP%20Failover-orange)](#-redundant-wan-connectivity--automatic-failover-part-2)
+[![Redundancy: Floating Static Routes](https://img.shields.io/badge/Redundancy-Dual--ISP%20Failover-orange)](#-redundant-wan-architecture--failover-mechanism)
 [![Encryption: AES-128](https://img.shields.io/badge/Encryption-AES--128%20%7C%20SHA--1-brightgreen)](#-site-to-site-ipsec-vpn-architecture)
-[![Access Control: ACL](https://img.shields.io/badge/Access%20Control-Extended%20ACL-blue)](#-access-control-lists-acl)
-[![Verification: 100% Passed](https://img.shields.io/badge/Verification-100%25%20Empirical-success)](#-empirical-verification--test-results)
+[![Access Control: ACL](https://img.shields.io/badge/Access%20Control-Extended%20ACL-blue)](#-security-implementation--access-control-lists)
+[![LAN Redundancy: PVST+](https://img.shields.io/badge/STP-PVST%2B%20Root%20Bridge-purple)](#-lan-redundancy--spanning-tree-protocol-pvst)
+[![Verification: 100% Empirical](https://img.shields.io/badge/Verification-100%25%20Empirical-success)](#-empirical-verification--testing-results)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-
-A production-grade, empirically verified enterprise network simulation designed and implemented in **Cisco Packet Tracer**. This project encompasses both milestones:
-1. **Major Review (Part 1):** Site-to-Site IPsec VPN over a simulated public ISP backbone with Gateway Extended ACLs for role-based access control.
-2. **Minor Review (Part 2):** Dual-ISP Redundant WAN connectivity, automatic link-state failure detection, dynamic floating static route failover, and multi-WAN IPsec VPN recovery.
 
 ---
 
-## 📌 Project Milestones Overview
+## 📖 Project Introduction
 
-### Milestone 1: Major Review (Part 1) — Secure Multi-Branch IPsec VPN
-- **Inter-Office Connectivity:** Secure communication between Headquarter (HQ) LAN (`192.168.10.0/24`) and Branch Office LAN (`192.168.20.0/24`) across public transit provider `ISP-Router`.
-- **IPsec Tunneling:** Site-to-site IPsec tunnel utilizing IKE Phase 1 (ISAKMP) Diffie-Hellman Group 2, pre-shared key authentication, and Phase 2 ESP (`esp-aes esp-sha-hmac`) in tunnel mode.
-- **Role-Based Access Control:** Gateway-level Extended ACL 110 permitting authorized workstation `HQ-PC` (`192.168.10.10`) while explicitly denying unauthorized guest terminal `HQ-Guest-PC` (`192.168.10.50`).
-- **Scope Integrity:** Transparent Layer 2 access switches without VLAN complexity, 802.1Q trunks, or sub-interfaces.
+In modern corporate environments, organizations operate across a central headquarters (HQ) and multiple remote branch locations. Corporate communications must traverse untrusted public Internet Service Provider (ISP) networks. This introduces critical security and availability challenges: unauthorized eavesdropping, data interception, single points of failure at the WAN edge, and internal broadcast flooding or unauthorized lateral movement between departments and guest users.
 
-### Milestone 2: Minor Review (Part 2) — Redundant WAN & Automatic Failover
-- **Dual-Homed WAN Infrastructure:** Deployment of an independent secondary transit provider (`Backup-ISP`) utilizing subnets `209.165.201.0/30` and `209.165.202.0/30`.
-- **Automatic Failure Detection & Failover:** Cisco IOS Floating Static Routing (AD 1 vs AD 10) driven by physical interface carrier-detect (`up/down` line protocol transitions).
-- **IPsec VPN Multi-WAN Recovery:** Dedicated secondary crypto map sets (`VPN-BACKUP`) bound to backup interfaces (`Gi0/2`), automatically negotiating Phase 1 and Phase 2 SAs over the backup WAN.
-- **Continuous Security Enforcement:** Verified continuous enforcement of ACL 110 blocking guest traffic during active failover over the secondary WAN path.
-- **Automatic Path Restoration:** Immediate pre-emption and traffic repatriation to the preferred primary ISP path when primary connectivity is restored.
+This project designs, implements, and empirically validates a complete, production-grade enterprise network simulation in **Cisco Packet Tracer 9.0 / 8.x**.
+
+### Core Deliverables & Quick Links
+- **Master Packet Tracer Topology:** [`Secure_MultiBranch_Enterprise_Network_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Final.pkt)
+- **Live Demonstration Guide:** [`docs/PROJECT_DEMONSTRATION_GUIDE.md`](docs/PROJECT_DEMONSTRATION_GUIDE.md) (Complete 7-stage script for professor demonstration)
+- **Comprehensive Viva Guide:** [`docs/PROJECT_VIVA_GUIDE.md`](docs/PROJECT_VIVA_GUIDE.md) (Theory, architectural deep-dive & 25 Q&A)
+- **Empirical Verification Evidence:** [`docs/VERIFICATION_EVIDENCE.md`](docs/VERIFICATION_EVIDENCE.md) (Full test logs & CLI proof)
+- **Device Configurations:** [`configs/`](configs/) (Exported router and switch running configurations)
+
+---
+
+## 🌟 Main Features
+
+1. **Departmental VLAN Segmentation (802.1Q):**
+   - Independent broadcast domains for Administration (VLAN 10), IT (VLAN 20), Finance (VLAN 30), and Guest (VLAN 40).
+   - Dedicated Server Farm (VLAN 100) and Demilitarized Zone (DMZ - VLAN 50).
+2. **Router-on-a-Stick (ROAS) Inter-VLAN Routing:**
+   - 802.1Q subinterfaces on `HQ-Router` (`Gi0/0.10` through `Gi0/0.100`) providing line-rate routing and security enforcement.
+3. **Centralized DHCP Relay & DNS Infrastructure:**
+   - Dynamic IP address leasing across all departmental VLANs via `ip helper-address 192.168.100.20`.
+   - Authoritative DNS resolution for enterprise domains (`web.corp.local`, `enterprise.corp`, `fileserver.corp.local`).
+4. **Isolated Demilitarized Zone (DMZ):**
+   - Publicly accessible DMZ Web Server (`172.16.1.10`) reachable by corporate and guest users, while preventing DMZ hosts from initiating unprompted sessions into internal corporate VLANs.
+5. **Site-to-Site IPsec VPN Tunnels:**
+   - Confidential tunnels linking HQ to Branch 1 and Branch 2 over untrusted public WANs.
+   - IKE Phase 1 ISAKMP (AES-128, Pre-shared Key `ciscoVPN2026`, SHA-1, DH Group 2) reaching `QM_IDLE ACTIVE`.
+   - Phase 2 IPsec transform-set (`esp-aes esp-sha-hmac`) running in Tunnel Mode with mirrored crypto ACLs.
+6. **Dual-WAN Redundancy & Automated Failover:**
+   - Primary ISP (`ISP-Router`) and Backup ISP (`Backup-ISP`).
+   - Primary default route (Administrative Distance 1) paired with Floating Static Routes (Administrative Distance 10).
+   - Instant failover upon link state change and automatic pre-emption upon primary link recovery.
+7. **Per-VLAN Spanning Tree Plus (PVST+):**
+   - Deterministic Layer 2 loop prevention.
+   - Primary Root Bridge on `HQ-SW1` (priority 4096) and Secondary Root Bridge on `HQ-SW2` (priority 8192).
+   - Access switch uplinks configured with active Root Forwarding (`Root FWD`) and Alternate Blocking (`Altn BLK`).
+8. **Granular Extended Access Control Lists (ACLs):**
+   - Ingress filtering on gateways enforcing guest isolation across HQ, Branch 1, and Branch 2 with verified zero-leakage into VPN tunnels.
 
 ---
 
 ## 📸 Network Topology Overview
 
-### 1. Part 2 Logical Topology Canvas (Current Running Implementation)
-![Redundant WAN IPsec VPN Topology](docs/redundant_wan_vpn_topology.png)
+### Live Running Topology Canvas
+![Enterprise Network Topology](docs/final_topology.png)
 
-### 2. Complete Architecture Topology Diagram (Mermaid)
+### Logical Architecture Diagram
 ```mermaid
 graph TD
-    subgraph HQ_LAN ["HQ Office LAN (192.168.10.0/24)"]
-        HQ_PC["HQ-PC<br/>192.168.10.10<br/>(Authorized)"] ---|Fa0 <--> Fa0/1| HQ_SW["HQ-Switch<br/>(Cisco 2960)"]
-        HQ_GUEST["HQ-Guest-PC<br/>192.168.10.50<br/>(Guest / Blocked)"] ---|Fa0 <--> Fa0/2| HQ_SW
-        HQ_SW ---|Gi0/1 <--> Gi0/0| HQ_R["HQ-Router<br/>(Cisco 2911)<br/>GW: 192.168.10.1"]
+    subgraph HQ_CAMPUS ["Headquarters (HQ) Campus Network"]
+        subgraph HQ_DEPARTMENTS ["Department Access Layer"]
+            ADMIN_PC["Admin-PC1 / PC2<br/>VLAN 10: 192.168.10.0/24"] --- SW_ADMIN["HQ-Admin-SW"]
+            IT_PC["IT-PC1 / PC2<br/>VLAN 20: 192.168.20.0/24"] --- SW_IT["HQ-IT-SW"]
+            FIN_PC["Finance-PC1 / PC2<br/>VLAN 30: 192.168.30.0/24"] --- SW_FIN["HQ-Finance-SW"]
+            GUEST_PC["Guest-PC1 / PC2<br/>VLAN 40: 192.168.40.0/24"] --- SW_GUEST["HQ-Guest-SW"]
+        end
+
+        subgraph HQ_DISTRIBUTION ["Redundant Distribution Layer (PVST+)"]
+            HQ_SW1["HQ-SW1 (Primary Root Bridge)<br/>STP Priority: 4096"]
+            HQ_SW2["HQ-SW2 (Secondary Root Bridge)<br/>STP Priority: 8192"]
+            HQ_SW1 ===|Fa0/23-24 Cross-Link Trunk| HQ_SW2
+        end
+
+        subgraph HQ_SERVICES ["HQ Services & DMZ"]
+            SW_SERVER["HQ-Server-SW"] --- DNS["DNS-Server<br/>192.168.100.10"]
+            SW_SERVER --- DHCP["DHCP-Server<br/>192.168.100.20"]
+            SW_SERVER --- FILE["File-Server<br/>192.168.100.30"]
+            SW_DMZ["DMZ-SW"] --- WEB["DMZ-Web-Server<br/>172.16.1.10"]
+        end
+
+        SW_ADMIN & SW_IT & SW_FIN & SW_GUEST & SW_SERVER & SW_DMZ ---|Gi0/1 Primary Trunk| HQ_SW1
+        SW_ADMIN & SW_IT & SW_FIN & SW_GUEST & SW_SERVER & SW_DMZ -.-|Gi0/2 Altn BLK Trunk| HQ_SW2
+
+        HQ_R["HQ-Router (Cisco 2911)<br/>802.1Q Router-on-a-Stick"]
+        HQ_SW1 ===|Gi0/1 802.1Q Dot1Q Trunk| HQ_R
     end
 
-    subgraph WAN_PRIMARY ["Primary Public WAN (ISP-Router)"]
-        ISP_PRI["ISP-Router (Cisco 2911)<br/>Primary Transit Gateway"]
-        HQ_R ===|"Gi0/1 <--> Gi0/0<br/>203.0.113.0/30<br/>Primary Metric: 1"| ISP_PRI
-        ISP_PRI ===|"Gi0/1 <--> Gi0/1<br/>198.51.100.0/30<br/>Primary Metric: 1"| BR_R["Branch-Router<br/>(Cisco 2911)<br/>GW: 192.168.20.1"]
+    subgraph WAN_CORE ["Redundant WAN Core"]
+        ISP_PRI["ISP-Router (Cisco 2911)<br/>Primary Transit Provider<br/>Metric AD: 1"]
+        ISP_BAK["Backup-ISP (Cisco 2911)<br/>Secondary Transit Provider<br/>Floating Metric AD: 10"]
+        HQ_R ===|"Gi0/1 (203.0.113.2)"| ISP_PRI
+        HQ_R -.-|"Gi0/2 (209.165.201.2)"| ISP_BAK
     end
 
-    subgraph WAN_BACKUP ["Redundant Public WAN (Backup-ISP)"]
-        ISP_BAK["Backup-ISP (Cisco 2911)<br/>Backup Transit Gateway"]
-        HQ_R -.-|"Gi0/2 <--> Gi0/0<br/>209.165.201.0/30<br/>Floating Metric: 10"| ISP_BAK
-        ISP_BAK -.-|"Gi0/1 <--> Gi0/2<br/>209.165.202.0/30<br/>Floating Metric: 10"| BR_R
+    subgraph BRANCH1 ["Branch 1 Office (192.168.50.0/24)"]
+        B1_R["Branch1-Router (Cisco 2911)"]
+        B1_SW["Branch1-SW"] --- B1_PC["Branch1-PC1 / PC2"]
+        B1_SW --- B1_GUEST["Branch1-Guest-PC"]
+        B1_R --- B1_SW
+        ISP_PRI ===|"Gi0/1 (198.51.100.2)"| B1_R
+        ISP_BAK -.-|"Gi0/2 (209.165.202.2)"| B1_R
     end
 
-    subgraph BRANCH_LAN ["Branch Office LAN (192.168.20.0/24)"]
-        BR_R ---|Gi0/0 <--> Gi0/1| BR_SW["Branch-Switch<br/>(Cisco 2960)"]
-        BR_SW ---|Fa0/1 <--> Fa0| BR_PC["Branch-PC<br/>192.168.20.10<br/>(Branch Host)"]
+    subgraph BRANCH2 ["Branch 2 Office (192.168.60.0/24)"]
+        B2_R["Branch2-Router (Cisco 2911)"]
+        B2_SW["Branch2-SW"] --- B2_PC["Branch2-PC1 / PC2"]
+        B2_SW --- B2_GUEST["Branch2-Guest-PC"]
+        B2_R --- B2_SW
+        ISP_PRI ===|"Gi0/2 (198.51.100.6)"| B2_R
+        ISP_BAK -.-|"Gi0/2 (209.165.202.6)"| B2_R
     end
 
-    linkStyle 3 stroke:#27ae60,stroke-width:3px;
-    linkStyle 4 stroke:#27ae60,stroke-width:3px;
-    linkStyle 5 stroke:#e67e22,stroke-width:3px,stroke-dasharray: 5 5;
-    linkStyle 6 stroke:#e67e22,stroke-width:3px,stroke-dasharray: 5 5;
-
-    classDef router fill:#2980b9,stroke:#1b4f72,stroke-width:2px,color:#fff;
-    classDef switch fill:#8e44ad,stroke:#512e5f,stroke-width:2px,color:#fff;
-    classDef pc fill:#16a085,stroke:#0e6252,stroke-width:2px,color:#fff;
-
-    class HQ_R,BR_R,ISP_PRI,ISP_BAK router;
-    class HQ_SW,BR_SW switch;
-    class HQ_PC,HQ_GUEST,BR_PC pc;
+    linkStyle 8 stroke:#27ae60,stroke-width:3px;
+    linkStyle 9 stroke:#e67e22,stroke-width:3px,stroke-dasharray: 5 5;
+    linkStyle 10 stroke:#27ae60,stroke-width:3px;
+    linkStyle 11 stroke:#e67e22,stroke-width:3px,stroke-dasharray: 5 5;
+    linkStyle 12 stroke:#27ae60,stroke-width:3px;
+    linkStyle 13 stroke:#e67e22,stroke-width:3px,stroke-dasharray: 5 5;
 ```
 
 ---
 
-## 📊 Complete IP Addressing & Interface Plan
+## 💻 Software & Devices Used
 
-| Network Purpose | Device Name | Interface | IP Address | Subnet Mask | Default Gateway | Operational Role |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **HQ LAN (`192.168.10.0/24`)** | `HQ-Router` | `Gi0/0` | `192.168.10.1` | `255.255.255.0` | N/A | LAN Default Gateway |
-| | `HQ-PC` | `Fa0` | `192.168.10.10` | `255.255.255.0` | `192.168.10.1` | Authorized Management Workstation |
-| | `HQ-Guest-PC` | `Fa0` | `192.168.10.50` | `255.255.255.0` | `192.168.10.1` | Unauthorized Guest Workstation |
-| **Branch LAN (`192.168.20.0/24`)**| `Branch-Router` | `Gi0/0` | `192.168.20.1` | `255.255.255.0` | N/A | LAN Default Gateway |
-| | `Branch-PC` | `Fa0` | `192.168.20.10` | `255.255.255.0` | `192.168.20.1` | Branch Department Workstation |
-| **Primary WAN 1 (`203.0.113.0/30`)** | `ISP-Router` | `Gi0/0` | `203.0.113.1` | `255.255.255.252` | N/A | Primary ISP Gateway to HQ |
-| | `HQ-Router` | `Gi0/1` | `203.0.113.2` | `255.255.255.252` | `203.0.113.1` | Primary HQ Public Interface (VPN-MAP) |
-| **Primary WAN 2 (`198.51.100.0/30`)** | `ISP-Router` | `Gi0/1` | `198.51.100.1` | `255.255.255.252` | N/A | Primary ISP Gateway to Branch |
-| | `Branch-Router` | `Gi0/1` | `198.51.100.2` | `255.255.255.252` | `198.51.100.1` | Primary Branch Public Interface (VPN-MAP) |
-| **Backup WAN 1 (`209.165.201.0/30`)** | `Backup-ISP` | `Gi0/0` | `209.165.201.1` | `255.255.255.252` | N/A | Backup ISP Gateway to HQ |
-| | `HQ-Router` | `Gi0/2` | `209.165.201.2` | `255.255.255.252` | `209.165.201.1` | Backup HQ Public Interface (VPN-BACKUP) |
-| **Backup WAN 2 (`209.165.202.0/30`)** | `Backup-ISP` | `Gi0/1` | `209.165.202.1` | `255.255.255.252` | N/A | Backup ISP Gateway to Branch |
-| | `Branch-Router` | `Gi0/2` | `209.165.202.2` | `255.255.255.252` | `209.165.202.1` | Backup Branch Public Interface (VPN-BACKUP) |
+### Software
+- **Simulation Platform:** Cisco Packet Tracer 9.0.1 (fully compatible with v8.2 and v8.0+)
+- **Operating Systems Simulated:** Cisco IOS Software, C2900 Software (`C2900-UNIVERSALK9-M`, Version 15.1(4)M5) & Catalyst 2960 Software (`C2960-LANBASE-M`, Version 12.2(25)FX)
 
----
-
-## 🔒 Site-to-Site IPsec VPN Architecture
-
-### Phase 1: IKE / ISAKMP Policy
-- **Encryption:** AES-128 (`encr aes`)
-- **Hash / Integrity:** SHA-1 (`hash sha`)
-- **Authentication:** Pre-Shared Key (`ciscoVPN2026`)
-- **Diffie-Hellman Group:** Group 2 (1024-bit modulus)
-- **SA Lifetime:** 86,400 seconds (24 hours)
-
-### Phase 2: IPsec Transform Set
-- **Transform Set:** `VPN-TS`
-  - Protocol: Encapsulating Security Payload (ESP)
-  - Encryption: `esp-aes`
-  - Integrity: `esp-sha-hmac`
-  - Encapsulation Mode: `Tunnel` (Original IP header encapsulated)
-
-### Dual-Interface Crypto Map Configuration
-- **Primary Interface (`GigabitEthernet0/1`):** Crypto map `VPN-MAP` set to primary peer (`198.51.100.2` on HQ; `203.0.113.2` on Branch).
-- **Backup Interface (`GigabitEthernet0/2`):** Crypto map `VPN-BACKUP` set to backup peer (`209.165.202.2` on HQ; `209.165.201.2` on Branch).
-- **Interesting Traffic Selectors (ACL 101):**
-  - `HQ-Router`: `permit ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255`
-  - `Branch-Router`: `permit ip 192.168.20.0 0.0.0.255 192.168.10.0 0.0.0.255`
+### Hardware Device Count (36 Devices Total)
+- **Routers (5):**
+  - 1x `HQ-Router` (Cisco 2911 ISR with Security Technology Package `securityk9`)
+  - 2x Branch Routers (`Branch1-Router`, `Branch2-Router` - Cisco 2911 ISRs)
+  - 2x ISP Routers (`ISP-Router`, `Backup-ISP` - Cisco 2911 ISRs)
+- **Switches (10):**
+  - 2x Distribution Switches (`HQ-SW1`, `HQ-SW2` - Cisco Catalyst 2960-24TT)
+  - 6x HQ Access Switches (`HQ-Admin-SW`, `HQ-IT-SW`, `HQ-Finance-SW`, `HQ-Guest-SW`, `HQ-Server-SW`, `DMZ-SW`)
+  - 2x Branch Access Switches (`Branch1-SW`, `Branch2-SW`)
+- **Servers (4):**
+  - `DNS-Server` (`192.168.100.10`)
+  - `DHCP-Server` (`192.168.100.20`)
+  - `File-Server` (`192.168.100.30`)
+  - `DMZ-Web-Server` (`172.16.1.10`)
+- **Workstations (14 PCs):**
+  - HQ Department PCs (`Admin-PC1`, `Admin-PC2`, `IT-PC1`, `IT-PC2`, `Finance-PC1`, `Finance-PC2`, `Guest-PC1`, `Guest-PC2`)
+  - Branch 1 PCs (`Branch1-PC1`, `Branch1-PC2`, `Branch1-Guest-PC`)
+  - Branch 2 PCs (`Branch2-PC1`, `Branch2-PC2`, `Branch2-Guest-PC`)
+- **Power Distribution Units (3):** Rack PDUs providing power management
 
 ---
 
-## 🔄 Redundant WAN Connectivity & Automatic Failover (Part 2)
+## 📊 Complete IP Addressing & VLAN Scheme
 
-### Floating Static Route Design
-- **Primary Static Route (HQ-Router):**
-  ```cisco
-  ip route 0.0.0.0 0.0.0.0 203.0.113.1        ! Administrative Distance = 1 (Preferred)
-  ```
-- **Backup Floating Static Route (HQ-Router):**
-  ```cisco
-  ip route 0.0.0.0 0.0.0.0 209.165.201.1 10     ! Administrative Distance = 10 (Standby)
-  ```
-- **Failover Mechanism:** When `GigabitEthernet0/1` transitions to `down`, the routing engine purges the AD 1 route. The floating route `[10/0]` is promoted to the routing table. Outbound traffic routes out `GigabitEthernet0/2`, where `VPN-BACKUP` initiates and encrypts traffic over `Backup-ISP`.
-- **Restoration Mechanism:** When `GigabitEthernet0/1` recovers to `up`, the AD 1 route automatically pre-empts the AD 10 route. Traffic repatriates to the primary WAN link.
+### HQ Campus Subnets & VLANs
 
----
+| Department / Function | VLAN ID | IP Subnet | Subinterface / Gateway | Subnet Mask | Usable Host Range | DHCP Pool Name |
+| :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| **Administration** | 10 | `192.168.10.0/24` | `Gi0/0.10` (`192.168.10.1`) | `255.255.255.0` | `.11` – `.254` | `ADMIN_POOL` |
+| **Information Technology (IT)** | 20 | `192.168.20.0/24` | `Gi0/0.20` (`192.168.20.1`) | `255.255.255.0` | `.11` – `.254` | `IT_POOL` |
+| **Finance** | 30 | `192.168.30.0/24` | `Gi0/0.30` (`192.168.30.1`) | `255.255.255.0` | `.11` – `.254` | `FINANCE_POOL` |
+| **Guest Wireless / LAN** | 40 | `192.168.40.0/24` | `Gi0/0.40` (`192.168.40.1`) | `255.255.255.0` | `.11` – `.254` | `GUEST_POOL` |
+| **DMZ Network** | 50 | `172.16.1.0/24` | `Gi0/0.50` (`172.16.1.1`) | `255.255.255.0` | `.10` – `.254` | Static |
+| **Corporate Server Farm** | 100 | `192.168.100.0/24` | `Gi0/0.100` (`192.168.100.1`) | `255.255.255.0` | `.10` – `.254` | Static / Exclusion |
 
-## 🛡️ Access Control Lists (ACL)
+### Branch Office Subnets
 
-To enforce security boundaries, `HQ-Router` filters ingress traffic on `GigabitEthernet0/0`:
-```cisco
-access-list 110 deny ip host 192.168.10.50 192.168.20.0 0.0.0.255
-access-list 110 permit ip 192.168.10.0 0.0.0.255 192.168.20.0 0.0.0.255
-access-list 110 permit ip any any
-```
-- **Authorized Flow:** `HQ-PC` (`192.168.10.10`) -> `Branch-PC` (`192.168.20.10`) is **Permitted & Encrypted** across both primary and backup paths.
-- **Unauthorized Flow:** `HQ-Guest-PC` (`192.168.10.50`) -> `Branch-PC` (`192.168.20.10`) is **Dropped at Gateway** (`Destination host unreachable`), preventing guest packets from leaking into either VPN tunnel.
+| Branch Name | VLAN ID | IP Subnet | Router Gateway | Subnet Mask | Usable Host Range | DHCP Pool Name |
+| :--- | :---: | :--- | :--- | :--- | :--- | :--- |
+| **Branch 1 (North)** | 1 (Access) | `192.168.50.0/24` | `Gi0/0` (`192.168.50.1`) | `255.255.255.0` | `.11` – `.254` | `BRANCH1_ROUTER_POOL` |
+| **Branch 2 (South)** | 1 (Access) | `192.168.60.0/24` | `Gi0/0` (`192.168.60.1`) | `255.255.255.0` | `.11` – `.254` | `BRANCH2_LAN` |
 
----
+### WAN Point-to-Point Transit Links
 
-## 🧪 Empirical Verification & Test Results
-
-All tests have been verified live in Cisco Packet Tracer:
-
-### Part 2 Test Summary Matrix
-
-| Test ID | Test Scenario | Operational Focus | Action | Expected Result | Actual Result Observed | Status |
-|:---:|:---|:---|:---|:---|:---|:---:|
-| **Test A** | Normal Operation | Primary WAN Path | Ping from `HQ-PC` | Plain IP reachability over primary WAN | 4/4 replies (0% loss); Gi0/1 `#pkts encaps: 13, decaps: 12` | ✅ PASS |
-| **Test B** | Primary Link Failure | Link Failure Detection | `shutdown Gi0/1` | Line protocol down; route switches to AD 10 | Line protocol down; `S* 0.0.0.0/0 [10/0]` promoted | ✅ PASS |
-| **Test C** | IPsec VPN Recovery | Backup WAN Tunnel | Ping during failure | IKE SA establishes on Gi0/2; IPsec SA active | IKE SA `QM_IDLE ACTIVE`; Gi0/2 `#pkts encaps: 7, decaps: 7` | ✅ PASS |
-| **Test D** | Security Isolation | Access Control List 110 | Ping from `HQ-Guest-PC` | Dropped at Gateway with Unreachable | 4/4 Destination host unreachable; ACL deny = 8 matches | ✅ PASS |
-| **Test E** | Primary Restoration | Path Reversion | `no shutdown Gi0/1` | Route reverts to AD 1 via ISP-Router | `0.0.0.0/0 [1/0]` restored; Gi0/1 encaps = 17 | ✅ PASS |
-| **Test F** | Bidirectional Stability | Reverse Traffic Flow | Ping from `Branch-PC` | Reverse flow encrypted via primary tunnel | 4/4 replies (0% loss); avg RTT = 5 ms | ✅ PASS |
-
-Full terminal logs, command outputs, and SPI verification are documented in:
-- 👉 **[`docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md`](docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md)**
-- 👉 **[`docs/VERIFICATION_EVIDENCE.md`](docs/VERIFICATION_EVIDENCE.md)**
+| Link Purpose | Provider | Subnet | Side A Interface & IP | Side B Interface & IP | Primary / Backup |
+| :--- | :--- | :--- | :--- | :--- | :---: |
+| **HQ Primary WAN** | `ISP-Router` | `203.0.113.0/30` | `HQ-Router` `Gi0/1` (`203.0.113.2`) | `ISP-Router` `Gi0/0` (`203.0.113.1`) | Primary (AD 1) |
+| **Branch 1 Primary WAN** | `ISP-Router` | `198.51.100.0/30` | `Branch1-Router` `Gi0/1` (`198.51.100.2`) | `ISP-Router` `Gi0/1` (`198.51.100.1`) | Primary (AD 1) |
+| **Branch 2 Primary WAN** | `ISP-Router` | `198.51.100.4/30` | `Branch2-Router` `Gi0/1` (`198.51.100.6`) | `ISP-Router` `Gi0/2` (`198.51.100.5`) | Primary (AD 1) |
+| **HQ Backup WAN** | `Backup-ISP` | `209.165.201.0/30` | `HQ-Router` `Gi0/2` (`209.165.201.2`) | `Backup-ISP` `Gi0/0` (`209.165.201.1`) | Backup (AD 10) |
+| **Branch 1 Backup WAN** | `Backup-ISP` | `209.165.202.0/30` | `Branch1-Router` `Gi0/2` (`209.165.202.2`) | `Backup-ISP` `Gi0/1` (`209.165.202.1`) | Backup (AD 10) |
+| **Branch 2 Backup WAN** | `Backup-ISP` | `209.165.202.4/30` | `Branch2-Router` `Gi0/2` (`209.165.202.6`) | `Backup-ISP` `Gi0/2` (`209.165.202.5`) | Backup (AD 10) |
 
 ---
 
-## ⏱️ Recovery Time Analysis
+## 🚀 How to Open & Run the Packet Tracer Project
 
-Empirical time measurements were captured during live simulation in Cisco Packet Tracer:
-
-| Measurement Phase | Event Description | Observed Elapsed Time |
-| :--- | :--- | :--- |
-| **$T_0$** | Primary WAN interface administrative shutdown introduced | `0.000 s` (Baseline) |
-| **$T_1$** | Line protocol state change detected (`Gi0/1` -> `down`) | `+0.004 s` (Instantaneous carrier-detect) |
-| **$T_2$** | Floating route promoted to RIB (`0.0.0.0/0 via 209.165.201.1 10`) | `+0.010 s` (Immediate FIB recalculation) |
-| **$T_3$ (Cold Start)** | IKE Phase 1 Main Mode & Phase 2 Quick Mode negotiation on Gi0/2 | `+1.800 s` to `+2.000 s` (1 ICMP packet timeout) |
-| **$T_4$ (Restored)** | First ICMP Echo Reply returned via Backup VPN | `+2.100 s` (Total Cold Recovery Time) |
-| **$T_4$ (Warm State)**| Failover with pre-existing / cached ISAKMP SA on Gi0/2 | `< 0.050 s` (Zero packet loss; 10/10 replies) |
-
----
-
-## 🗂️ Project Repository Structure
-
-```tree
-Internet-Cafe-Network-Design/
-├── Secure_MultiBranch_IPsec_VPN.pkt          # Primary verified simulation file (Major & Minor Review)
-├── Internet-Cafe-Network-Design.pkt          # Historical reference simulation
-├── configs/                                  # Standalone Cisco IOS startup configurations
-│   ├── HQ-Router.cfg                         # HQ Gateway with Dual-WAN IPsec, Floating Routes & ACL 110
-│   ├── Branch-Router.cfg                     # Branch Gateway with Dual-WAN IPsec & Floating Routes
-│   ├── ISP-Router-VPN.cfg                    # Simulated Primary ISP Transit Gateway
-│   ├── Backup-ISP-Router.cfg                 # Simulated Secondary ISP Transit Gateway
-│   ├── HQ-Switch.cfg                         # HQ Access Switch
-│   └── Branch-Switch.cfg                     # Branch Access Switch
-├── docs/                                     # Documentation, implementation guides, and test records
-│   ├── MAJOR_REVIEW_GUIDE.md                 # Part 1 Complete Implementation Guide & Viva Prep
-│   ├── MINOR_REVIEW_GUIDE.md                 # Part 2 Implementation Guide (Redundant WAN & Failover)
-│   ├── FAILOVER_VPN_RECOVERY_EVIDENCE.md     # Part 2 Empirical Failover & VPN Recovery Logs
-│   ├── VERIFICATION_EVIDENCE.md              # Unified Empirical Test Logs (Part 1 & Part 2)
-│   ├── TROUBLESHOOTING_GUIDE.md              # Comprehensive Network & VPN Troubleshooting Reference
-│   ├── redundant_wan_vpn_topology.png        # Part 2 Running Topology Canvas Screenshot
-│   └── secure_vpn_topology.png               # Part 1 Running Topology Canvas Screenshot
-├── LICENSE                                   # MIT License
-└── README.md                                 # Unified Project Documentation
-```
-
----
-
-## 🚀 How to Run & Verify the Simulation
-
-1. Install **Cisco Packet Tracer** (version 8.0 or newer).
-2. Clone this repository:
+1. Install **Cisco Packet Tracer 8.0+** or **9.0+**.
+2. Clone or download this repository:
    ```bash
-   git clone https://github.com/ZeroTrace7/Internet-Cafe-Network-Design.git
+   git clone https://github.com/zerotrace7/Internet-Cafe-Network-Design.git
    cd Internet-Cafe-Network-Design
    ```
-3. Open [`Secure_MultiBranch_IPsec_VPN.pkt`](Secure_MultiBranch_IPsec_VPN.pkt) in Cisco Packet Tracer.
-4. Verify all link LEDs are green.
-5. **Normal Operation Test:**
-   - On `HQ-PC`, open **Command Prompt** and ping `Branch-PC`:
-     ```cmd
-     ping 192.168.20.10
-     ```
-   - On `HQ-Router`, check IPsec counters:
-     ```cisco
-     show crypto isakmp sa
-     show crypto ipsec sa interface GigabitEthernet0/1
-     ```
-6. **Simulate Primary Link Failover:**
-   - In `HQ-Router` and `Branch-Router` CLI:
-     ```cisco
-     configure terminal
-     interface GigabitEthernet0/1
-     shutdown
-     end
-     ```
-   - Check routes:
-     ```cisco
-     show ip route
-     ```
-     Confirm `0.0.0.0/0 [10/0] via 209.165.201.1` is active.
-   - On `HQ-PC`, ping `Branch-PC`:
-     ```cmd
-     ping 192.168.20.10
-     ```
-   - On `HQ-Router`, check backup IPsec counters:
-     ```cisco
-     show crypto isakmp sa
-     show crypto ipsec sa interface GigabitEthernet0/2
-     ```
-7. **Verify Guest Restriction:**
-   - On `HQ-Guest-PC`, ping `Branch-PC`:
-     ```cmd
-     ping 192.168.20.10
-     ```
-     Confirm packets are blocked with `Destination host unreachable`.
-8. **Restore Primary Path:**
-   - In `HQ-Router` and `Branch-Router` CLI:
-     ```cisco
-     configure terminal
-     interface GigabitEthernet0/1
-     no shutdown
-     end
-     ```
-   - Ping from `HQ-PC` and confirm traffic returns to `GigabitEthernet0/1`.
+3. Launch Packet Tracer and open the file:
+   ```
+   Secure_MultiBranch_Enterprise_Network_Final.pkt
+   ```
+4. Allow the simulation clock to run for **30 seconds**.
+   - *Why?* Spanning Tree Protocol (PVST+) transitions interfaces through Listening and Learning states before reaching Forwarding. Link LEDs will turn solid green (forwarding) or amber (blocked redundant ports).
 
 ---
 
-## 📚 Technical Documentation & Viva Reference
+## 🎬 How to Reproduce Major Demonstrations
 
-- **Major Review (Part 1) Architecture & Viva Guide:** [`docs/MAJOR_REVIEW_GUIDE.md`](docs/MAJOR_REVIEW_GUIDE.md)
-- **Minor Review (Part 2) Implementation Guide:** [`docs/MINOR_REVIEW_GUIDE.md`](docs/MINOR_REVIEW_GUIDE.md)
-- **Part 2 Failover & VPN Recovery Evidence:** [`docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md`](docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md)
-- **Unified Empirical Verification Logs:** [`docs/VERIFICATION_EVIDENCE.md`](docs/VERIFICATION_EVIDENCE.md)
-- **Network Troubleshooting & Diagnostics Guide:** [`docs/TROUBLESHOOTING_GUIDE.md`](docs/TROUBLESHOOTING_GUIDE.md)
+Detailed step-by-step instructions for all 7 stages are provided in [`docs/PROJECT_DEMONSTRATION_GUIDE.md`](docs/PROJECT_DEMONSTRATION_GUIDE.md). Below is the quick summary:
+
+### 1. Departmental DHCP & Inter-VLAN Routing
+- Open `Admin-PC1` → **Desktop** → **Command Prompt**:
+  ```cmd
+  ipconfig /renew
+  ping 192.168.20.11
+  nslookup web.corp.local
+  ```
+- *Result:* Receives IP `192.168.10.11`, Gateway `192.168.10.1`, DNS `192.168.100.10`; 0% ping loss; domain resolves to `172.16.1.10`.
+
+### 2. DMZ Web Server Access
+- Open `Admin-PC1` or `Guest-PC1` → **Desktop** → **Web Browser**.
+- Navigate to: `http://web.corp.local` or `http://172.16.1.10`.
+- *Result:* Enterprise web page loads immediately.
+
+### 3. IPsec Encrypted Inter-Branch Communication
+- From `Admin-PC1`, ping remote branch PC:
+  ```cmd
+  ping 192.168.50.11
+  ```
+- Open `HQ-Router` CLI:
+  ```cisco
+  show crypto isakmp sa
+  show crypto ipsec sa
+  ```
+- *Result:* `QM_IDLE ACTIVE` status for both branch tunnels; `#pkts encrypt` and `#pkts decrypt` counters increment.
+
+### 4. Zero-Trust Guest Isolation
+- Open `Guest-PC1` (`192.168.40.11`) and attempt to ping corporate PC:
+  ```cmd
+  ping 192.168.10.11
+  ```
+- *Result:* Dropped with `Reply from 192.168.40.1: Destination host unreachable`.
+- Open `HQ-Router` CLI: `show access-lists 140` verifies drop counters.
+
+### 5. Automated Dual-WAN Failover & Recovery
+- Open `HQ-Router` CLI and shut down the primary WAN link:
+  ```cisco
+  configure terminal
+  interface GigabitEthernet0/1
+  shutdown
+  end
+  show ip route static
+  ```
+- *Result:* Default route instantly switches from Primary ISP (`203.0.113.1` AD 1) to Backup ISP (`209.165.201.1` AD 10).
+- Ping from `Admin-PC1` to `Branch1-PC1` passes seamlessly over `VPN-BACKUP`.
+- Restore primary WAN: `interface GigabitEthernet0/1` → `no shutdown`.
+- *Result:* Primary route (AD 1) immediately pre-empts the floating route.
+
+### 6. Layer 2 Spanning Tree Loop Prevention
+- Open `HQ-SW1` CLI: `show spanning-tree vlan 10` → Shows `This bridge is the root` (priority 4096).
+- Open `HQ-Admin-SW` CLI: `show spanning-tree vlan 10` → Shows `Gi0/1` in `Root FWD` and `Gi0/2` in `Altn BLK`.
 
 ---
 
-## 👤 Author
+## ⚠️ Project Limitations & Production Trade-Offs
 
-- **ZeroTrace7** — [GitHub Profile](https://github.com/ZeroTrace7)
-- **Course:** B.Tech Computer Networks (Major & Minor Reviews)
+While this project satisfies and exceeds academic enterprise networking criteria, the following known limitations and production enhancements should be noted:
+
+1. **Static Crypto Maps vs. DMVPN:** The project utilizes static site-to-site IPsec crypto maps. In real-world enterprises with dozens of branches, Dynamic Multipoint VPN (DMVPN) with mGRE and NHRP is preferred to avoid full-mesh configuration scaling issues.
+2. **Link-State Failover vs. IP SLA Tracking:** The failover mechanism relies on interface link-state detection (`line protocol down`). In carrier networks where an upstream ISP router fails without dropping the local physical link, Cisco IP SLA with Object Tracking would be necessary.
+3. **PVST+ Convergence Timing:** Classical 802.1D PVST+ requires 30–50 seconds to transition through Listening/Learning states during topology changes. Modern networks utilize Rapid PVST+ (802.1w) for sub-second convergence.
+4. **Pre-Shared Key (PSK) Authentication:** While convenient and secure for small topologies, enterprise environments utilize Public Key Infrastructure (PKI) with X.509 digital certificates.
+5. **IOS Router ACLs vs. NGFW:** Access filtering is performed via Cisco IOS router access lists. Real-world perimeters deploy dedicated Next-Generation Firewalls (NGFW) with stateful Layer 7 Deep Packet Inspection.
+
+---
+
+## 📂 Repository Directory Structure
+
+```
+.
+├── Secure_MultiBranch_Enterprise_Network_Final.pkt # Clean, fully verified final Cisco Packet Tracer project
+├── Secure_MultiBranch_IPsec_VPN.pkt          # Primary working Cisco Packet Tracer project
+├── Secure_MultiBranch_IPsec_VPN_backup_before_cleanup.pkt # Original safety backup
+├── Secure_MultiBranch_Enterprise_Network_Final_prefinal_backup.pkt # Pre-final verification backup
+├── README.md                                 # Master documentation
+├── AGENTS.md                                 # MCP agent guidelines
+├── configs/                                  # Exported router and switch running configurations
+│   ├── HQ-Router.cfg                         # HQ Gateway configuration
+│   ├── Branch1-Router.cfg                    # Branch 1 Gateway configuration
+│   ├── Branch2-Router.cfg                    # Branch 2 Gateway configuration
+│   ├── ISP-Router-VPN.cfg                    # Primary ISP configuration
+│   ├── Backup-ISP-Router.cfg                 # Secondary ISP configuration
+│   ├── HQ-SW1.cfg                            # Primary Distribution Switch (Root Bridge)
+│   ├── HQ-SW2.cfg                            # Secondary Distribution Switch
+│   ├── HQ-Admin-SW.cfg                       # Administration Access Switch
+│   ├── HQ-IT-SW.cfg                          # IT Department Access Switch
+│   ├── HQ-Finance-SW.cfg                     # Finance Department Access Switch
+│   ├── HQ-Guest-SW.cfg                       # Guest Access Switch
+│   ├── HQ-Server-SW.cfg                      # Server Farm Access Switch
+│   ├── DMZ-SW.cfg                            # DMZ Access Switch
+│   ├── Branch1-SW.cfg                        # Branch 1 Access Switch
+│   └── Branch2-SW.cfg                        # Branch 2 Access Switch
+└── docs/                                     # Demonstration guides, viva questions, and evidence
+    ├── PROJECT_DEMONSTRATION_GUIDE.md        # Step-by-step live demonstration script (Stages 1–7)
+    ├── PROJECT_VIVA_GUIDE.md                 # Complete viva revision guide & 25 Q&A
+    ├── VERIFICATION_EVIDENCE.md              # Empirical test logs (Tests 1–12)
+    ├── final_topology.png                    # Final organized topology screenshot
+    └── live_running_topology.png             # Canvas capture of active Packet Tracer project
+```
+
+---
+
+## 👨‍🎓 Author & Academic Attribution
+- **Project Title:** Secure Multi-Branch Enterprise Network Using Site-to-Site IPsec VPN, ACLs, VLANs, and Redundant WAN Failover
+- **Course:** Computer Networks (B.Tech Computer Science & Engineering)
+- **Simulation Platform:** Cisco Packet Tracer 9.0.1

@@ -1,0 +1,140 @@
+{
+  "name": "ring_topology_lab",
+  "devices": [
+    {
+      "name": "SW1",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 200,
+      "y": 200,
+      "interfaces": {}
+    },
+    {
+      "name": "SW2",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 500,
+      "y": 200,
+      "interfaces": {}
+    },
+    {
+      "name": "SW3",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 500,
+      "y": 500,
+      "interfaces": {}
+    },
+    {
+      "name": "SW4",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 200,
+      "y": 500,
+      "interfaces": {}
+    },
+    {
+      "name": "PC1",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 50,
+      "y": 100,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.10/24"
+      }
+    },
+    {
+      "name": "PC2",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 650,
+      "y": 100,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.20/24"
+      }
+    },
+    {
+      "name": "PC3",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 650,
+      "y": 600,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.30/24"
+      }
+    },
+    {
+      "name": "PC4",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 50,
+      "y": 600,
+      "interfaces": {
+        "FastEthernet0": "192.168.1.40/24"
+      }
+    }
+  ],
+  "modules": [],
+  "links": [
+    {
+      "device_a": "SW1",
+      "port_a": "FastEthernet0/1",
+      "device_b": "SW2",
+      "port_b": "FastEthernet0/1",
+      "cable": "cross"
+    },
+    {
+      "device_a": "SW2",
+      "port_a": "FastEthernet0/2",
+      "device_b": "SW3",
+      "port_b": "FastEthernet0/1",
+      "cable": "cross"
+    },
+    {
+      "device_a": "SW3",
+      "port_a": "FastEthernet0/2",
+      "device_b": "SW4",
+      "port_b": "FastEthernet0/1",
+      "cable": "cross"
+    },
+    {
+      "device_a": "SW4",
+      "port_a": "FastEthernet0/2",
+      "device_b": "SW1",
+      "port_b": "FastEthernet0/2",
+      "cable": "cross"
+    },
+    {
+      "device_a": "SW1",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW2",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW3",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC3",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "SW4",
+      "port_a": "FastEthernet0/3",
+      "device_b": "PC4",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    }
+  ],
+  "dhcp_pools": [],
+  "static_routes": [],
+  "ospf_configs": [],
+  "rip_configs": []
+}

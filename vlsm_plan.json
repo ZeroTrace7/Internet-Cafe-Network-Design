@@ -1,0 +1,200 @@
+{
+  "name": "vlsm_hub_spoke",
+  "devices": [
+    {
+      "name": "R1",
+      "model": "1941",
+      "category": "router",
+      "x": 350,
+      "y": 100,
+      "interfaces": {
+        "GigabitEthernet0/0": "172.16.10.1/25",
+        "Serial0/0/0": "172.16.10.225/30",
+        "Serial0/0/1": "172.16.10.229/30"
+      }
+    },
+    {
+      "name": "R2",
+      "model": "1941",
+      "category": "router",
+      "x": 100,
+      "y": 300,
+      "interfaces": {
+        "GigabitEthernet0/0": "172.16.10.129/26",
+        "Serial0/0/0": "172.16.10.226/30"
+      }
+    },
+    {
+      "name": "R3",
+      "model": "1941",
+      "category": "router",
+      "x": 600,
+      "y": 300,
+      "interfaces": {
+        "GigabitEthernet0/0": "172.16.10.193/27",
+        "Serial0/0/0": "172.16.10.230/30"
+      }
+    },
+    {
+      "name": "Switch0",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 350,
+      "y": 10,
+      "interfaces": {}
+    },
+    {
+      "name": "Switch1",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 100,
+      "y": 450,
+      "interfaces": {}
+    },
+    {
+      "name": "Switch2",
+      "model": "2960-24TT",
+      "category": "switch",
+      "x": 600,
+      "y": 450,
+      "interfaces": {}
+    },
+    {
+      "name": "PC0",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 350,
+      "y": -100,
+      "interfaces": {
+        "FastEthernet0": "172.16.10.10/25"
+      },
+      "gateway": "172.16.10.1"
+    },
+    {
+      "name": "PC1",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 100,
+      "y": 600,
+      "interfaces": {
+        "FastEthernet0": "172.16.10.130/26"
+      },
+      "gateway": "172.16.10.129"
+    },
+    {
+      "name": "PC2",
+      "model": "PC-PT",
+      "category": "pc",
+      "x": 600,
+      "y": 600,
+      "interfaces": {
+        "FastEthernet0": "172.16.10.194/27"
+      },
+      "gateway": "172.16.10.193"
+    }
+  ],
+  "modules": [
+    {
+      "device": "R1",
+      "slot": "0/0",
+      "module": "HWIC-2T"
+    },
+    {
+      "device": "R2",
+      "slot": "0/0",
+      "module": "HWIC-2T"
+    },
+    {
+      "device": "R3",
+      "slot": "0/0",
+      "module": "HWIC-2T"
+    }
+  ],
+  "links": [
+    {
+      "device_a": "R1",
+      "port_a": "Serial0/0/0",
+      "device_b": "R2",
+      "port_b": "Serial0/0/0",
+      "cable": "serial"
+    },
+    {
+      "device_a": "R1",
+      "port_a": "Serial0/0/1",
+      "device_b": "R3",
+      "port_b": "Serial0/0/0",
+      "cable": "serial"
+    },
+    {
+      "device_a": "R1",
+      "port_a": "GigabitEthernet0/0",
+      "device_b": "Switch0",
+      "port_b": "FastEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "R2",
+      "port_a": "GigabitEthernet0/0",
+      "device_b": "Switch1",
+      "port_b": "FastEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "R3",
+      "port_a": "GigabitEthernet0/0",
+      "device_b": "Switch2",
+      "port_b": "FastEthernet0/1",
+      "cable": "straight"
+    },
+    {
+      "device_a": "Switch0",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC0",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "Switch1",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC1",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    },
+    {
+      "device_a": "Switch2",
+      "port_a": "FastEthernet0/2",
+      "device_b": "PC2",
+      "port_b": "FastEthernet0",
+      "cable": "straight"
+    }
+  ],
+  "dhcp_pools": [],
+  "static_routes": [],
+  "ospf_configs": [],
+  "rip_configs": [
+    {
+      "router": "R1",
+      "version": 2,
+      "networks": [
+        "172.16.0.0"
+      ],
+      "no_auto_summary": true
+    },
+    {
+      "router": "R2",
+      "version": 2,
+      "networks": [
+        "172.16.0.0"
+      ],
+      "no_auto_summary": true
+    },
+    {
+      "router": "R3",
+      "version": 2,
+      "networks": [
+        "172.16.0.0"
+      ],
+      "no_auto_summary": true
+    }
+  ]
+}

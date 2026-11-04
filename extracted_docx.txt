@@ -1,0 +1,95 @@
+Two computers in a small office need to share files directly without using a switch or router. You are asked to connect PC1 and PC2 using Cisco Packet Tracer.
+PC1: 192.168.1.10/24
+PC2: 192.168.2.10/24
+Consider a company consists of 3 departments. Each department having its own router with minimum 2 hosts. Now assume yourself as a network administrator having the IP address 198.162.10.0/19. Create the required number of subnets and configure the network for the departments using Static routing.
+Your company has recently added a third department. Each department has its own router connected via serial links. The available network is 192.168.10.0/24.
+You are the network administrator and must:
+Subnet the given network to assign unique subnets to each department.
+Configure RIP v1 on all routers to enable inter-department communication.
+Each router should have at least two PCs connected through Fast Ethernet interfaces.
+Show successful connectivity between any two PCs in different departments using ping.
+A company has a head office and two branch offices located in different buildings. Each location has multiple hosts. All branches must be connected and able to share data securely.
+Set up a small office network follows star topology with one switch connecting 4 PCs and a router that acts as the gateway to the Internet.
+A university has two academic blocks — Engineering and Science — each with its own internal network. Each block has a dedicated router and at least two connected computers. As the network administrator, you are provided the IP network 192.20.8.0/24   to   configure   connectivity   between   the   blocks. You must configure the entire setup using RIP v2 in the CLI commands
+A defense communication Centre requires uninterrupted connectivity between four control routers. Even if one link fails, communication must continue through alternate routes.
+An airport IT team needs to set up internal connectivity for different department
+Operations Control: 40 systems Ticketing Counters: 20 systems Security Office: 10 systems VIP Lounge: 4 systems
+It has been assigned the network 192.168.100.0/24, Design a logical network structure that uses IPs efficiently and ensures communication between all sections.
+A startup company has just moved into a new office. It has three sections — HR, Sales, and IT. All systems must be connected in a network so that employees can share files and printers. The company has been assigned the IP network 192.168.20.0/24.
+Your company has a web server hosted inside the internal LAN with a private IP address 192.168.10.10. The company has been assigned a public IP 203.0.113.10. Configure Static NAT so that external users can access the internal web server using the public IP.
+Configure Static NAT in Cisco Packet Tracer to map the internal server IP to the public IP.
+Verify that a PC from an external network can successfully ping and access the web server.
+Set up a peer-to-peer network for a startup office with 5 PCs, enabling file sharing without a central server. Describe the topology and IP assignment.
+A company has four branches — HR, Finance, Sales, and Support — each with 20 computers.You are assigned the IP block 192.168.40.0/24 to design the addressing scheme for the entire company.
+Divide the given network equally among the four branches.
+Assign appropriate IP addresses to routers and PCs.
+Configure routing to enable inter-branch communication.
+Verify connectivity using ping and show routing tables
+You've set up a small, temporary computer lab for a training session with 10 PCs lined up on a long table. To keep it cheap and simple, you connect them all using a single coaxial cable in a bus topology.
+You are tasked with designing a hybrid network using Bus, Star, and Mesh topologies for different departments. The goal is to ensure communication between all devices.
+Research Department: Bus topology with 3 PCs, IP range 192.168.50.0/24.
+IT Department: Star topology with 4 PCs connected to a Switch, IP range 192.168.60.0/24.
+Operations Department: Mesh topology with 3 PCs, IP range 192.168.70.0/24.
+All departments are connected via a central switch for inter-department communication. Configure the PCs for proper communication and test connectivity.
+A regional branch network uses a distance vector routing protocol operating over UDP port 520 to exchange updates among three interconnected routers. Since the protocol supports only classful networks, subnet details are not shared in advertisements.
+You are tasked with designing a WAN connecting three branch offices and a head office using the IP block 192.168.10.0/24.
+Perform subnetting to allocate unique subnets for each office.
+Assign IP addresses to each router interface and end device.
+Verify connectivity and document your subnet allocation table.
+In a smart production facility, automated control systems rely on continuous data exchange among multiple devices. The setup connects six PCs arranged in a circular communication pattern with a redundant link to ensure operations remain stable even if one connection fails.
+All configuration need to be done in Command line interface in packet tracer.
+At the end of simulation, you are expected to show the commands and also packets flowing successfully.
+Consider a company consists of 5 departments. Each department having its own router with minimum 2 hosts. Now assume yourself as a network administrator having the IP address 198.10.1.0/27 Create the required amount of subnets and configure the network for  the  departments  using  Static  routing  and  default  routing.
+All configuration need to be done in Command line interface in packet tracer. At the end of simulation, you are expected to show the commands and also packets flowing successfully.
+A new branch office is opening, and you are the Network Administrator responsible for its initial network setup. You have been given a brand new Cisco 1941 Router (R1). The router needs basic configuration, management security, and one active interface to connect to the LAN.
+For Configuring a new router for a small office network and perform the initial secure configuration, set up basic LAN connectivity, and verify communication between connected devices.
+The company has been allocated the private IP address block: 192.168.10.0/23. You must use Variable Length Subnet Mask (VLSM) to subnet this block to meet the following host requirements while minimizing wasted IP addresses.
+Network Description
+Required Number of Hosts
+Bangalore HO LAN
+110
+Chennai Branch LAN
+50
+Mumbai Branch LAN
+25
+Delhi Branch LAN
+12
+Consider a company consists of 3 departments. Each department having its own router with minimum 2 hosts. Now assume yourself as a network administrator having the IP address 209.10.3.0/24. Create the required number of subnets and configure the network   for   the   departments   using   Single   area   OSPF.
+All configuration needs to be done in Command line interface in packet tracer.
+At the end of simulation, you are expected to show the commands and also packets flowing successfully.
+Create different topologies and assign class A ip address to all the PC’s and check the connectivity status among all the PC’s.
+Implement a static routing scheme across all three routers to provide routes to all non-directly connected networks. Verify the successful implementation by testing connectivity with ping
+Router
+Interface
+IP Address
+Lab_A
+Fa0/0
+172.16.10.1
+Lab_A
+S0/0
+172.16.20.1
+Lab_B
+S0/0
+172.16.20.2
+Lab_B
+S0/1
+172.16.30.1
+Lab_C
+S0/0
+172.16.30.2
+Lab_C
+Fa0/0
+172.16.40.1
+Configure a router to connect two separate LANs for a corporate office, including secure console access and interface settings.
+Consider a company consists of 3 departments. Each department having its own router with minimum 2 hosts. Now assume yourself as a network administrator having the IP address 192.168.3.10/24. Create the required number of subnets and configure the network for the departments. All configuration needs to be done in Command line interface in packet tracer.
+  Design a star topology connecting 5 PCs to a central switch.
+Assign IP addresses from the subnet 192.168.10.0/24. Verify full connectivity between all nodes.
+Replace the switch with a hub and note the performance difference.
+Two company locations are connected through an ISP. Dynamic routing is not permitted due to cost limitations. As a network engineer, you must manually configure routing to ensure communication between the sites and establish default routes toward the ISP for internet access and external communication.
+A manufacturing unit connects all devices in a closed loop so that each device has exactly two neighbours.
+The data travels in one direction around the loop.
+Questions:
+Identify the topology type.
+Create a simulation using four PCs and two switches (or routers).
+Assign IP addresses and verify connectivity.
+Demonstrate what happens if one link is broken.
