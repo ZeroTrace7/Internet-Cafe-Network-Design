@@ -1,5 +1,6 @@
-# 🛡️ Secure Multi-Branch Enterprise Network with Site-to-Site IPsec VPN, VLANs, ACLs & Redundant WAN Failover
-## Computer Networks (CN) B.Tech Final Project & Demonstration
+# 🛡️ Secure Multi-Branch Enterprise Network & High-Performance LAN Infrastructure
+## Site-to-Site IPsec VPN, VLANs, Extended ACLs, Redundant Dual-WAN Failover & PVST+ Loop Prevention
+### Computer Networks (CN) Capstone / B.Tech Engineering Final Project
 
 [![Cisco Packet Tracer](https://img.shields.io/badge/Cisco%20Packet%20Tracer-v8.0%2B%20%7C%20v9.0%2B-005073?logo=cisco&logoColor=white)](https://www.netacad.com/courses/packet-tracer)
 [![Security: IPsec VPN](https://img.shields.io/badge/Security-Site--to--Site%20IPsec%20VPN-red)](#-site-to-site-ipsec-vpn-architecture)
@@ -12,54 +13,91 @@
 
 ---
 
-## 📖 Project Introduction
+## 📖 Executive Summary & Project Evolution
 
-In modern corporate environments, organizations operate across a central headquarters (HQ) and multiple remote branch locations. Corporate communications must traverse untrusted public Internet Service Provider (ISP) networks. This introduces critical security and availability challenges: unauthorized eavesdropping, data interception, single points of failure at the WAN edge, and internal broadcast flooding or unauthorized lateral movement between departments and guest users.
+In modern enterprise and commercial networking, infrastructure must simultaneously fulfill local segmentation demands and secure wide-area interconnectivity across untrusted public Internet Service Provider (ISP) backbones. 
 
-This project designs, implements, and empirically validates a complete, production-grade enterprise network simulation in **Cisco Packet Tracer 9.0 / 8.x**.
+This repository documents the end-to-end design, implementation, and empirical verification of a scalable network architecture developed across three evolutionary phases in **Cisco Packet Tracer 9.0 / 8.x**:
 
-### Core Deliverables & Quick Links
-- **Master Packet Tracer Topology:** [`Secure_MultiBranch_Enterprise_Network_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Final.pkt)
-- **Live Demonstration Guide:** [`docs/PROJECT_DEMONSTRATION_GUIDE.md`](docs/PROJECT_DEMONSTRATION_GUIDE.md) (Complete 7-stage script for professor demonstration)
-- **Comprehensive Viva Guide:** [`docs/PROJECT_VIVA_GUIDE.md`](docs/PROJECT_VIVA_GUIDE.md) (Theory, architectural deep-dive & 25 Q&A)
-- **Empirical Verification Evidence:** [`docs/VERIFICATION_EVIDENCE.md`](docs/VERIFICATION_EVIDENCE.md) (Full test logs & CLI proof)
-- **Device Configurations:** [`configs/`](configs/) (Exported router and switch running configurations)
+```
+┌─────────────────────────────────┐     ┌──────────────────────────────────┐     ┌─────────────────────────────────────┐
+│  Phase 1: Internet Cafe & LAN   │ ──► │  Phase 2: Multi-Branch IPsec VPN │ ──► │  Phase 3: High-Availability Campus  │
+│  • Commercial Subnetting (VLSM) │     │  • Headquarter & Branch Sites    │     │  • Dual-ISP Redundant WAN Failover  │
+│  • 802.1Q VLANs & NAT Overload  │     │  • AES-128 / SHA-1 Crypto Tunnels│     │  • PVST+ Root Bridge Distribution   │
+│  • DHCP Server Pools & ACLs     │     │  • Extended Role-Based ACLs      │     │  • Isolated DMZ & Central Services  │
+└─────────────────────────────────┘     └──────────────────────────────────┘     └─────────────────────────────────────┘
+```
 
 ---
 
-## 🌟 Main Features
+## 📦 Master Deliverables & Navigation
 
-1. **Departmental VLAN Segmentation (802.1Q):**
-   - Independent broadcast domains for Administration (VLAN 10), IT (VLAN 20), Finance (VLAN 30), and Guest (VLAN 40).
-   - Dedicated Server Farm (VLAN 100) and Demilitarized Zone (DMZ - VLAN 50).
-2. **Router-on-a-Stick (ROAS) Inter-VLAN Routing:**
-   - 802.1Q subinterfaces on `HQ-Router` (`Gi0/0.10` through `Gi0/0.100`) providing line-rate routing and security enforcement.
-3. **Centralized DHCP Relay & DNS Infrastructure:**
-   - Dynamic IP address leasing across all departmental VLANs via `ip helper-address 192.168.100.20`.
-   - Authoritative DNS resolution for enterprise domains (`web.corp.local`, `enterprise.corp`, `fileserver.corp.local`).
-4. **Isolated Demilitarized Zone (DMZ):**
-   - Publicly accessible DMZ Web Server (`172.16.1.10`) reachable by corporate and guest users, while preventing DMZ hosts from initiating unprompted sessions into internal corporate VLANs.
-5. **Site-to-Site IPsec VPN Tunnels:**
-   - Confidential tunnels linking HQ to Branch 1 and Branch 2 over untrusted public WANs.
-   - IKE Phase 1 ISAKMP (AES-128, Pre-shared Key `ciscoVPN2026`, SHA-1, DH Group 2) reaching `QM_IDLE ACTIVE`.
-   - Phase 2 IPsec transform-set (`esp-aes esp-sha-hmac`) running in Tunnel Mode with mirrored crypto ACLs.
-6. **Dual-WAN Redundancy & Automated Failover:**
-   - Primary ISP (`ISP-Router`) and Backup ISP (`Backup-ISP`).
-   - Primary default route (Administrative Distance 1) paired with Floating Static Routes (Administrative Distance 10).
-   - Instant failover upon link state change and automatic pre-emption upon primary link recovery.
-7. **Per-VLAN Spanning Tree Plus (PVST+):**
-   - Deterministic Layer 2 loop prevention.
-   - Primary Root Bridge on `HQ-SW1` (priority 4096) and Secondary Root Bridge on `HQ-SW2` (priority 8192).
-   - Access switch uplinks configured with active Root Forwarding (`Root FWD`) and Alternate Blocking (`Altn BLK`).
-8. **Granular Extended Access Control Lists (ACLs):**
-   - Ingress filtering on gateways enforcing guest isolation across HQ, Branch 1, and Branch 2 with verified zero-leakage into VPN tunnels.
+### 🎯 Cisco Packet Tracer Topology Models (`.pkt`)
+| Model File | Milestone / Edition | Description |
+| :--- | :--- | :--- |
+| **[`Secure_MultiBranch_Enterprise_Network_Presentation_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Presentation_Final.pkt)** | **Presentation Edition (Recommended)** | Fully color-coded departmental zones, labeled network subnets, active PVST+ links, dual-ISP WAN, and DMZ. Ideal for evaluation panels and live demos. |
+| **[`Secure_MultiBranch_Enterprise_Network_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Final.pkt)** | **Production Master Edition** | Complete enterprise topology with all 36 devices, verified IPsec tunnels, and automated failover scripts. |
+| **[`Secure_MultiBranch_IPsec_VPN.pkt`](Secure_MultiBranch_IPsec_VPN.pkt)** | **Major/Minor Review Edition** | Dedicated dual-branch IPsec VPN and WAN failover verification model. |
+| **[`Internet_Cafe_Scalable_Network_Design.pkt`](Internet_Cafe_Scalable_Network_Design.pkt)** | **Scalable Cafe Edition** | Expanded commercial internet cafe layout with customer, gaming, admin, and server tiers. |
+| **[`Internet-Cafe-Network-Design.pkt`](Internet-Cafe-Network-Design.pkt)** | **Foundational Edition** | Initial core prototype demonstrating 802.1Q VLAN trunking and Cisco IOS NAT/PAT. |
+
+### 📚 Comprehensive Documentation Suite
+- 📋 **[Live Demonstration Guide (`docs/PROJECT_DEMONSTRATION_GUIDE.md`)](docs/PROJECT_DEMONSTRATION_GUIDE.md):** 7-stage step-by-step verification script designed for viva and live lab demonstrations.
+- 🎓 **[Comprehensive Viva Guide (`docs/PROJECT_VIVA_GUIDE.md`)](docs/PROJECT_VIVA_GUIDE.md):** Deep-dive theoretical primer with 25 technical Q&A covering IPsec, IKE, PVST+, OSPF, and NAT.
+- 🧪 **[Empirical Verification Evidence (`docs/VERIFICATION_EVIDENCE.md`)](docs/VERIFICATION_EVIDENCE.md):** Full CLI test captures, ping matrices, and packet trace verifications (Tests 1–12).
+- 🔄 **[WAN Failover & VPN Recovery Evidence (`docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md`)](docs/FAILOVER_VPN_RECOVERY_EVIDENCE.md):** Empirical proof of sub-second WAN link failover and automated crypto-map migration.
+- 📐 **[Technical Architecture & VLSM Specification (`docs/NETWORK_ARCHITECTURE.md`)](docs/NETWORK_ARCHITECTURE.md):** Detailed addressing tables, subnet masks, and broadcast domain boundaries.
+- 🛠️ **[Troubleshooting & Diagnostics Guide (`docs/TROUBLESHOOTING_GUIDE.md`)](docs/TROUBLESHOOTING_GUIDE.md):** IOS debugging commands, common misconfiguration resolutions, and validation checklists.
+- ⚙️ **[Device Running Configurations (`configs/`)](configs/):** Direct, copy-pasteable startup and running configurations for all 15 routers and switches.
+
+---
+
+## 🌟 Core Technical Architecture & Features
+
+### 1. Departmental VLAN Segmentation (802.1Q)
+- **Isolated Broadcast Domains:** Segmented into Administration (`VLAN 10`), IT Engineering (`VLAN 20`), Finance (`VLAN 30`), and Guest Access (`VLAN 40`).
+- **Server Farm & DMZ:** Dedicated Server Farm (`VLAN 100`) and Demilitarized Zone (`VLAN 50`) separated by line-rate Layer 3 gateway boundaries.
+
+### 2. Router-on-a-Stick (ROAS) Inter-VLAN Routing
+- 802.1Q subinterfaces configured on `HQ-Router` (`Gi0/0.10` through `Gi0/0.100`) providing line-rate routing, default gateway services, and traffic policy inspection.
+
+### 3. Centralized Enterprise Services (DHCP Relay & DNS)
+- **DHCP Relay:** Configured using `ip helper-address 192.168.100.20`, allowing hosts across all departmental VLANs to receive dynamic IP leases from a centralized server.
+- **Authoritative DNS:** Corporate domain resolution (`web.corp.local`, `enterprise.corp`, `fileserver.corp.local`) hosted on `192.168.100.10`.
+
+### 4. Isolated Demilitarized Zone (DMZ)
+- Publicly accessible DMZ Web Server (`172.16.1.10`) reachable by internal corporate hosts, branch offices, and external clients.
+- Gateway security rules prevent DMZ hosts from initiating unprompted sessions into internal corporate VLANs.
+
+### 5. Site-to-Site IPsec VPN Tunnels
+- **Confidential Inter-Branch Backhaul:** Connects Headquarters to `Branch 1` and `Branch 2` over public untrusted WAN circuits.
+- **IKE Phase 1 (ISAKMP):** `AES-128`, SHA-1 HMAC, Diffie-Hellman Group 2, Pre-Shared Key (`ciscoVPN2026`), reaching confirmed `QM_IDLE ACTIVE` state.
+- **IKE Phase 2 (IPsec):** Transform-set `esp-aes esp-sha-hmac` running in IPsec Tunnel Mode with mirrored crypto access lists.
+
+### 6. High-Availability Dual-WAN Redundancy & Automated Failover
+- **Dual-Homed WAN:** Primary connection via `ISP-Router` paired with a secondary circuit via `Backup-ISP`.
+- **Floating Static Routes:** Primary static default route (Administrative Distance `1`) paired with floating backup route (Administrative Distance `10`).
+- **Autonomous Recovery:** Instant failover upon physical carrier-detect change, and automatic state pre-emption when the primary link is restored.
+- **Multi-WAN Crypto Binding:** Secondary crypto map sets (`VPN-BACKUP`) bound to backup WAN interfaces (`Gi0/2`), preserving encrypted tunnels during ISP outages.
+
+### 7. Per-VLAN Spanning Tree Plus (PVST+) Layer 2 Redundancy
+- Eliminates Layer 2 switching loops while ensuring deterministic uplink utilization.
+- Primary Root Bridge on `HQ-SW1` (`spanning-tree vlan 1-100 priority 4096`).
+- Secondary Root Bridge on `HQ-SW2` (`spanning-tree vlan 1-100 priority 8192`).
+- Access switch distribution uplinks deterministically balance active Root Forwarding (`Root FWD`) and Alternate Blocking (`Altn BLK`) states.
+
+### 8. Granular Extended Access Control Lists (ACLs)
+- Gateway-level ingress filtering enforcing zero-trust guest isolation across HQ, Branch 1, and Branch 2 with verified zero-leakage into corporate subnets or IPsec tunnels.
 
 ---
 
 ## 📸 Network Topology Overview
 
-### Live Running Topology Canvas
-![Enterprise Network Topology](docs/final_topology.png)
+### Presentation Canvas Layout
+![Presentation Topology](Secure_MultiBranch_Enterprise_Network_Presentation_Final.png)
+
+### Live Running Simulation Topology
+![Live Enterprise Running Topology](docs/final_topology.png)
 
 ### Logical Architecture Diagram
 ```mermaid
@@ -127,35 +165,7 @@ graph TD
 
 ---
 
-## 💻 Software & Devices Used
-
-### Software
-- **Simulation Platform:** Cisco Packet Tracer 9.0.1 (fully compatible with v8.2 and v8.0+)
-- **Operating Systems Simulated:** Cisco IOS Software, C2900 Software (`C2900-UNIVERSALK9-M`, Version 15.1(4)M5) & Catalyst 2960 Software (`C2960-LANBASE-M`, Version 12.2(25)FX)
-
-### Hardware Device Count (36 Devices Total)
-- **Routers (5):**
-  - 1x `HQ-Router` (Cisco 2911 ISR with Security Technology Package `securityk9`)
-  - 2x Branch Routers (`Branch1-Router`, `Branch2-Router` - Cisco 2911 ISRs)
-  - 2x ISP Routers (`ISP-Router`, `Backup-ISP` - Cisco 2911 ISRs)
-- **Switches (10):**
-  - 2x Distribution Switches (`HQ-SW1`, `HQ-SW2` - Cisco Catalyst 2960-24TT)
-  - 6x HQ Access Switches (`HQ-Admin-SW`, `HQ-IT-SW`, `HQ-Finance-SW`, `HQ-Guest-SW`, `HQ-Server-SW`, `DMZ-SW`)
-  - 2x Branch Access Switches (`Branch1-SW`, `Branch2-SW`)
-- **Servers (4):**
-  - `DNS-Server` (`192.168.100.10`)
-  - `DHCP-Server` (`192.168.100.20`)
-  - `File-Server` (`192.168.100.30`)
-  - `DMZ-Web-Server` (`172.16.1.10`)
-- **Workstations (14 PCs):**
-  - HQ Department PCs (`Admin-PC1`, `Admin-PC2`, `IT-PC1`, `IT-PC2`, `Finance-PC1`, `Finance-PC2`, `Guest-PC1`, `Guest-PC2`)
-  - Branch 1 PCs (`Branch1-PC1`, `Branch1-PC2`, `Branch1-Guest-PC`)
-  - Branch 2 PCs (`Branch2-PC1`, `Branch2-PC2`, `Branch2-Guest-PC`)
-- **Power Distribution Units (3):** Rack PDUs providing power management
-
----
-
-## 📊 Complete IP Addressing & VLAN Scheme
+## 📊 Comprehensive IP Addressing & Subnet Table
 
 ### HQ Campus Subnets & VLANs
 
@@ -188,130 +198,155 @@ graph TD
 
 ---
 
-## 🚀 How to Open & Run the Packet Tracer Project
+## 💻 Hardware Inventory & Simulation Environment
 
-1. Install **Cisco Packet Tracer 8.0+** or **9.0+**.
-2. Clone or download this repository:
+### Software Platform
+- **Simulation Platform:** Cisco Packet Tracer 9.0.1 (fully backward-compatible with v8.2 and v8.0+)
+- **Operating Systems Simulated:** 
+  - Cisco IOS Software, C2900 Software (`C2900-UNIVERSALK9-M`, Version 15.1(4)M5 with `securityk9` license)
+  - Catalyst 2960 Software (`C2960-LANBASE-M`, Version 12.2(25)FX)
+
+### Complete Hardware Inventory (36 Devices)
+- **Edge & Core Routers (5):**
+  - 1x `HQ-Router` (Cisco 2911 ISR with `securityk9` package)
+  - 2x Branch Routers (`Branch1-Router`, `Branch2-Router` - Cisco 2911 ISRs)
+  - 2x ISP Core Transit Routers (`ISP-Router`, `Backup-ISP` - Cisco 2911 ISRs)
+- **Distribution & Access Switches (10):**
+  - 2x Distribution Switches (`HQ-SW1`, `HQ-SW2` - Cisco Catalyst 2960-24TT)
+  - 6x HQ Access Switches (`HQ-Admin-SW`, `HQ-IT-SW`, `HQ-Finance-SW`, `HQ-Guest-SW`, `HQ-Server-SW`, `DMZ-SW`)
+  - 2x Branch Access Switches (`Branch1-SW`, `Branch2-SW`)
+- **Centralized Servers (4):**
+  - `DNS-Server` (`192.168.100.10`)
+  - `DHCP-Server` (`192.168.100.20`)
+  - `File-Server` (`192.168.100.30`)
+  - `DMZ-Web-Server` (`172.16.1.10`)
+- **Workstations & Terminals (14):**
+  - HQ Department PCs (`Admin-PC1`, `Admin-PC2`, `IT-PC1`, `IT-PC2`, `Finance-PC1`, `Finance-PC2`, `Guest-PC1`, `Guest-PC2`)
+  - Branch 1 PCs (`Branch1-PC1`, `Branch1-PC2`, `Branch1-Guest-PC`)
+  - Branch 2 PCs (`Branch2-PC1`, `Branch2-PC2`, `Branch2-Guest-PC`)
+- **Rack Infrastructure:** 3x Power Distribution Units (PDUs) managing power distribution.
+
+---
+
+## 🚀 Quick Start: How to Open & Run
+
+1. **Install Cisco Packet Tracer:** Download and install Cisco Packet Tracer 8.0 or 9.0+.
+2. **Clone the Repository:**
    ```bash
-   git clone https://github.com/zerotrace7/Internet-Cafe-Network-Design.git
+   git clone https://github.com/ZeroTrace7/Internet-Cafe-Network-Design.git
    cd Internet-Cafe-Network-Design
    ```
-3. Launch Packet Tracer and open the file:
-   ```
-   Secure_MultiBranch_Enterprise_Network_Final.pkt
-   ```
-4. Allow the simulation clock to run for **30 seconds**.
-   - *Why?* Spanning Tree Protocol (PVST+) transitions interfaces through Listening and Learning states before reaching Forwarding. Link LEDs will turn solid green (forwarding) or amber (blocked redundant ports).
+3. **Open the Topology:**
+   - Launch Cisco Packet Tracer.
+   - Open **[`Secure_MultiBranch_Enterprise_Network_Presentation_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Presentation_Final.pkt)** (for presentation layout) or **[`Secure_MultiBranch_Enterprise_Network_Final.pkt`](Secure_MultiBranch_Enterprise_Network_Final.pkt)**.
+4. **Allow Convergence:**
+   - Allow the simulation clock to run for **30 seconds**.
+   - *Why?* Spanning Tree Protocol (PVST+) transitions interfaces through Listening and Learning states before reaching Forwarding. Link LEDs will turn solid green (forwarding) or amber (blocked redundant trunks).
 
 ---
 
-## 🎬 How to Reproduce Major Demonstrations
+## 🎬 Live Demonstration & Key CLI Commands
 
-Detailed step-by-step instructions for all 7 stages are provided in [`docs/PROJECT_DEMONSTRATION_GUIDE.md`](docs/PROJECT_DEMONSTRATION_GUIDE.md). Below is the quick summary:
+For the complete 7-stage script, refer to [`docs/PROJECT_DEMONSTRATION_GUIDE.md`](docs/PROJECT_DEMONSTRATION_GUIDE.md). Below is the executive testing summary:
 
-### 1. Departmental DHCP & Inter-VLAN Routing
-- Open `Admin-PC1` → **Desktop** → **Command Prompt**:
-  ```cmd
-  ipconfig /renew
-  ping 192.168.20.11
-  nslookup web.corp.local
-  ```
-- *Result:* Receives IP `192.168.10.11`, Gateway `192.168.10.1`, DNS `192.168.100.10`; 0% ping loss; domain resolves to `172.16.1.10`.
+### 1. DHCP Lease & DNS Verification
+Open `Admin-PC1` → **Desktop** → **Command Prompt**:
+```cmd
+ipconfig /renew
+nslookup web.corp.local
+ping 192.168.20.11
+```
+*Result:* Dynamic IP `192.168.10.11` leased via DHCP relay; DNS resolves `web.corp.local` to `172.16.1.10`; 0% loss to IT workstation.
 
-### 2. DMZ Web Server Access
-- Open `Admin-PC1` or `Guest-PC1` → **Desktop** → **Web Browser**.
-- Navigate to: `http://web.corp.local` or `http://172.16.1.10`.
-- *Result:* Enterprise web page loads immediately.
+### 2. IPsec Encrypted Inter-Branch Communication
+From `Admin-PC1`, ping remote branch PC:
+```cmd
+ping 192.168.50.11
+```
+Open `HQ-Router` CLI:
+```cisco
+show crypto isakmp sa
+show crypto ipsec sa
+```
+*Result:* Status displays `QM_IDLE ACTIVE`. Encrypt/decrypt packet counters increment monotonically with 0 drops.
 
-### 3. IPsec Encrypted Inter-Branch Communication
-- From `Admin-PC1`, ping remote branch PC:
-  ```cmd
-  ping 192.168.50.11
-  ```
-- Open `HQ-Router` CLI:
-  ```cisco
-  show crypto isakmp sa
-  show crypto ipsec sa
-  ```
-- *Result:* `QM_IDLE ACTIVE` status for both branch tunnels; `#pkts encrypt` and `#pkts decrypt` counters increment.
+### 3. Zero-Trust Guest Isolation
+From `Guest-PC1` (`192.168.40.11`), attempt to access corporate LAN:
+```cmd
+ping 192.168.10.11
+```
+*Result:* Dropped with `Reply from 192.168.40.1: Destination host unreachable`. Verified by `show access-lists 140` drop counters.
 
-### 4. Zero-Trust Guest Isolation
-- Open `Guest-PC1` (`192.168.40.11`) and attempt to ping corporate PC:
-  ```cmd
-  ping 192.168.10.11
-  ```
-- *Result:* Dropped with `Reply from 192.168.40.1: Destination host unreachable`.
-- Open `HQ-Router` CLI: `show access-lists 140` verifies drop counters.
+### 4. Automated Dual-WAN Failover & Recovery
+Open `HQ-Router` CLI and shut down the primary WAN link:
+```cisco
+configure terminal
+interface GigabitEthernet0/1
+ shutdown
+end
+show ip route static
+```
+*Result:* Default route instantly switches from Primary ISP (`203.0.113.1` AD 1) to Backup ISP (`209.165.201.1` AD 10). Tunnels dynamically migrate to `VPN-BACKUP`.
+Restoring the link (`no shutdown`) immediately reinstates the AD 1 route without operator intervention.
 
-### 5. Automated Dual-WAN Failover & Recovery
-- Open `HQ-Router` CLI and shut down the primary WAN link:
-  ```cisco
-  configure terminal
-  interface GigabitEthernet0/1
-  shutdown
-  end
-  show ip route static
-  ```
-- *Result:* Default route instantly switches from Primary ISP (`203.0.113.1` AD 1) to Backup ISP (`209.165.201.1` AD 10).
-- Ping from `Admin-PC1` to `Branch1-PC1` passes seamlessly over `VPN-BACKUP`.
-- Restore primary WAN: `interface GigabitEthernet0/1` → `no shutdown`.
-- *Result:* Primary route (AD 1) immediately pre-empts the floating route.
+### 5. PVST+ Root Bridge & Loop Prevention
+```cisco
+HQ-SW1# show spanning-tree vlan 10
+! Displays: "This bridge is the root" (Priority 4096)
 
-### 6. Layer 2 Spanning Tree Loop Prevention
-- Open `HQ-SW1` CLI: `show spanning-tree vlan 10` → Shows `This bridge is the root` (priority 4096).
-- Open `HQ-Admin-SW` CLI: `show spanning-tree vlan 10` → Shows `Gi0/1` in `Root FWD` and `Gi0/2` in `Altn BLK`.
+HQ-Admin-SW# show spanning-tree vlan 10
+! Displays: Gi0/1 in ROOT FWD, Gi0/2 in ALTN BLK
+```
 
 ---
 
-## ⚠️ Project Limitations & Production Trade-Offs
-
-While this project satisfies and exceeds academic enterprise networking criteria, the following known limitations and production enhancements should be noted:
-
-1. **Static Crypto Maps vs. DMVPN:** The project utilizes static site-to-site IPsec crypto maps. In real-world enterprises with dozens of branches, Dynamic Multipoint VPN (DMVPN) with mGRE and NHRP is preferred to avoid full-mesh configuration scaling issues.
-2. **Link-State Failover vs. IP SLA Tracking:** The failover mechanism relies on interface link-state detection (`line protocol down`). In carrier networks where an upstream ISP router fails without dropping the local physical link, Cisco IP SLA with Object Tracking would be necessary.
-3. **PVST+ Convergence Timing:** Classical 802.1D PVST+ requires 30–50 seconds to transition through Listening/Learning states during topology changes. Modern networks utilize Rapid PVST+ (802.1w) for sub-second convergence.
-4. **Pre-Shared Key (PSK) Authentication:** While convenient and secure for small topologies, enterprise environments utilize Public Key Infrastructure (PKI) with X.509 digital certificates.
-5. **IOS Router ACLs vs. NGFW:** Access filtering is performed via Cisco IOS router access lists. Real-world perimeters deploy dedicated Next-Generation Firewalls (NGFW) with stateful Layer 7 Deep Packet Inspection.
-
----
-
-## 📂 Repository Directory Structure
+## 📂 Repository Directory Layout
 
 ```
 .
-├── Secure_MultiBranch_Enterprise_Network_Final.pkt # Clean, fully verified final Cisco Packet Tracer project
-├── Secure_MultiBranch_IPsec_VPN.pkt          # Primary working Cisco Packet Tracer project
-├── Secure_MultiBranch_IPsec_VPN_backup_before_cleanup.pkt # Original safety backup
-├── Secure_MultiBranch_Enterprise_Network_Final_prefinal_backup.pkt # Pre-final verification backup
-├── README.md                                 # Master documentation
-├── AGENTS.md                                 # MCP agent guidelines
-├── configs/                                  # Exported router and switch running configurations
-│   ├── HQ-Router.cfg                         # HQ Gateway configuration
-│   ├── Branch1-Router.cfg                    # Branch 1 Gateway configuration
-│   ├── Branch2-Router.cfg                    # Branch 2 Gateway configuration
-│   ├── ISP-Router-VPN.cfg                    # Primary ISP configuration
-│   ├── Backup-ISP-Router.cfg                 # Secondary ISP configuration
-│   ├── HQ-SW1.cfg                            # Primary Distribution Switch (Root Bridge)
-│   ├── HQ-SW2.cfg                            # Secondary Distribution Switch
-│   ├── HQ-Admin-SW.cfg                       # Administration Access Switch
-│   ├── HQ-IT-SW.cfg                          # IT Department Access Switch
-│   ├── HQ-Finance-SW.cfg                     # Finance Department Access Switch
-│   ├── HQ-Guest-SW.cfg                       # Guest Access Switch
-│   ├── HQ-Server-SW.cfg                      # Server Farm Access Switch
-│   ├── DMZ-SW.cfg                            # DMZ Access Switch
-│   ├── Branch1-SW.cfg                        # Branch 1 Access Switch
-│   └── Branch2-SW.cfg                        # Branch 2 Access Switch
-└── docs/                                     # Demonstration guides, viva questions, and evidence
-    ├── PROJECT_DEMONSTRATION_GUIDE.md        # Step-by-step live demonstration script (Stages 1–7)
-    ├── PROJECT_VIVA_GUIDE.md                 # Complete viva revision guide & 25 Q&A
-    ├── VERIFICATION_EVIDENCE.md              # Empirical test logs (Tests 1–12)
-    ├── final_topology.png                    # Final organized topology screenshot
-    └── live_running_topology.png             # Canvas capture of active Packet Tracer project
+├── Secure_MultiBranch_Enterprise_Network_Presentation_Final.pkt # Presentation edition with labeled canvas
+├── Secure_MultiBranch_Enterprise_Network_Presentation_Final.png # Presentation topology high-resolution capture
+├── Secure_MultiBranch_Enterprise_Network_Final.pkt              # Production master Cisco Packet Tracer project
+├── Secure_MultiBranch_IPsec_VPN.pkt                            # Major & Minor review working topology
+├── Internet_Cafe_Scalable_Network_Design.pkt                   # Phase 1 scalable internet cafe topology
+├── Internet-Cafe-Network-Design.pkt                            # Phase 1 foundational prototype
+├── README.md                                                   # Master comprehensive documentation
+├── LICENSE                                                     # MIT License
+├── configs/                                                    # Complete router and switch running configurations
+│   ├── HQ-Router.cfg                                           # HQ Core Gateway (ROAS, IPsec, Dual-WAN)
+│   ├── Branch1-Router.cfg                                      # Branch 1 Gateway configuration
+│   ├── Branch2-Router.cfg                                      # Branch 2 Gateway configuration
+│   ├── ISP-Router-VPN.cfg                                      # Primary WAN Transit ISP configuration
+│   ├── Backup-ISP-Router.cfg                                   # Secondary WAN Transit ISP configuration
+│   ├── HQ-SW1.cfg                                              # Primary Distribution Switch (STP Root)
+│   ├── HQ-SW2.cfg                                              # Secondary Distribution Switch (Secondary Root)
+│   ├── HQ-Admin-SW.cfg                                         # Administration Department Access Switch
+│   ├── HQ-IT-SW.cfg                                            # IT Engineering Access Switch
+│   ├── HQ-Finance-SW.cfg                                       # Finance Department Access Switch
+│   ├── HQ-Guest-SW.cfg                                         # Guest Access Switch
+│   ├── HQ-Server-SW.cfg                                        # Server Farm Access Switch
+│   ├── DMZ-SW.cfg                                              # Demilitarized Zone Access Switch
+│   ├── Branch1-SW.cfg                                          # Branch 1 Office Access Switch
+│   └── Branch2-SW.cfg                                          # Branch 2 Office Access Switch
+└── docs/                                                       # Architectural specifications and test reports
+    ├── PROJECT_DEMONSTRATION_GUIDE.md                          # Live demonstration script (Stages 1–7)
+    ├── PROJECT_VIVA_GUIDE.md                                   # Comprehensive viva revision guide & 25 Q&A
+    ├── VERIFICATION_EVIDENCE.md                                # Empirical test logs & CLI proof
+    ├── FAILOVER_VPN_RECOVERY_EVIDENCE.md                       # Empirical WAN failover logs
+    ├── MAJOR_REVIEW_GUIDE.md                                   # Major review milestone documentation
+    ├── MINOR_REVIEW_GUIDE.md                                   # Minor review milestone documentation
+    ├── NETWORK_ARCHITECTURE.md                                 # Technical architecture & VLSM design
+    ├── TROUBLESHOOTING_GUIDE.md                                # IOS troubleshooting & verification checklists
+    ├── final_topology.png                                      # Master topology capture
+    └── live_running_topology.png                               # Running canvas capture
 ```
 
 ---
 
-## 👨‍🎓 Author & Academic Attribution
-- **Project Title:** Secure Multi-Branch Enterprise Network Using Site-to-Site IPsec VPN, ACLs, VLANs, and Redundant WAN Failover
-- **Course:** Computer Networks (B.Tech Computer Science & Engineering)
-- **Simulation Platform:** Cisco Packet Tracer 9.0.1
+## 👨‍🎓 Project Attribution & Academic Context
+
+- **Author / Developer:** [ZeroTrace7](https://github.com/ZeroTrace7)
+- **Repository:** [`ZeroTrace7/Internet-Cafe-Network-Design`](https://github.com/ZeroTrace7/Internet-Cafe-Network-Design)
+- **Domain:** Computer Networks (B.Tech Computer Science & Engineering)
+- **Tooling:** Cisco Packet Tracer 9.0 / 8.x, Cisco IOS (2911 ISRs, Catalyst 2960 switches)
+- **License:** [MIT License](LICENSE)
